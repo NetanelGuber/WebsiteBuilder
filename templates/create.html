@@ -1,0 +1,356 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Create New Page</title>
+  <!-- GrapesJS CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/grapesjs/dist/css/grapes.min.css">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      max-width: 1200px;
+    }
+    .header {
+      margin-bottom: 20px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .editor-wrapper {
+      margin-top: 20px;
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #gjs {
+      height: 600px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    <div class="header">
+      <h1>Create a New Page</h1>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form id="pageForm" method="POST">
+      <div class="mb-3">
+        <label for="name" class="form-label">Page Name</label>
+        <input type="text" class="form-control" name="name" id="name" required>
+      </div>
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input type="text" class="form-control" name="description" id="description">
+      </div>
+      <!-- Hidden field to store the editor data -->
+      <input type="hidden" name="content" id="content">
+      <button type="submit" class="btn btn-primary">Save Page</button>
+    </form>
+    <div class="editor-wrapper mt-4">
+      <div id="gjs"></div>
+    </div>
+  </div>
+  
+  <!-- Include GrapesJS -->
+  <script src="https://cdn.jsdelivr.net/npm/grapesjs"></script>
+  <!-- Initialize GrapesJS Editor -->
+  <script>
+    var editor = grapesjs.init({
+      container: '#gjs',
+      height: '600px',
+      fromElement: false,
+      storageManager: { type: 'none' },
+      blockManager: {
+        blocks: [
+          // Section Block
+          {
+            id: 'section',
+            label: '<div><strong>Section</strong><br><small>Container block for structuring your page.</small></div>',
+            content: `<section class="container" style="padding:20px;">
+                        <h2>New Section</h2>
+                        <p>Section content goes here.</p>
+                      </section>`,
+            category: 'Layout'
+          },
+          // Text Block
+          {
+            id: 'text',
+            label: '<div><strong>Text</strong><br><small>A simple text block for paragraphs or headings.</small></div>',
+            content: '<div style="padding:10px;">Insert your text here</div>',
+            category: 'Basic'
+          },
+          // Image Block
+          {
+            id: 'image',
+            label: '<div><strong>Image</strong><br><small>Block for inserting an image.</small></div>',
+            content: { type: 'image' },
+            category: 'Media'
+          },
+          // Video Block
+          {
+            id: 'video',
+            label: '<div><strong>Video</strong><br><small>Embed a video (e.g., from YouTube).</small></div>',
+            content: {
+              type: 'video',
+              src: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            },
+            category: 'Media'
+          },
+          // Interactive Button Block
+          {
+            id: 'interactive-button',
+            label: '<div><strong>Interactive Button</strong><br><small>A button that triggers on-page changes via custom JS.</small></div>',
+            content: { type: 'interactive-button' },
+            category: 'Basic'
+          },
+          // Quote Block
+          {
+            id: 'quote',
+            label: '<div><strong>Quote</strong><br><small>Display a testimonial or quotation.</small></div>',
+            content: '<blockquote style="border-left: 4px solid #ccc; margin: 20px; padding-left: 10px;">Your quote here</blockquote>',
+            category: 'Basic'
+          },
+          // Divider Block
+          {
+            id: 'divider',
+            label: '<div><strong>Divider</strong><br><small>A horizontal line to separate content.</small></div>',
+            content: '<hr>',
+            category: 'Basic'
+          },
+          // Columns Block
+          {
+            id: 'columns',
+            label: '<div><strong>Columns</strong><br><small>Create a multi-column layout.</small></div>',
+            content: `<div class="row" style="display:flex;">
+                        <div class="col" style="padding:10px; border:1px solid #ccc;">Column 1</div>
+                        <div class="col" style="padding:10px; border:1px solid #ccc;">Column 2</div>
+                      </div>`,
+            category: 'Layout'
+          },
+          // List Block
+          {
+            id: 'list',
+            label: '<div><strong>List</strong><br><small>An unordered list for bullet points.</small></div>',
+            content: '<ul style="padding:10px;"><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>',
+            category: 'Basic'
+          },
+          // Form Block
+          {
+            id: 'form',
+            label: '<div><strong>Form</strong><br><small>A simple contact form for gathering user information.</small></div>',
+            content: `<form style="padding:20px;">
+                        <div class="mb-3">
+                          <label>Name:</label>
+                          <input type="text" class="form-control" placeholder="Your name">
+                        </div>
+                        <div class="mb-3">
+                          <label>Email:</label>
+                          <input type="email" class="form-control" placeholder="Your email">
+                        </div>
+                        <div class="mb-3">
+                          <label>Message:</label>
+                          <textarea class="form-control" placeholder="Your message"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                      </form>`,
+            category: 'Forms'
+          },
+          // Map Block
+          {
+            id: 'map',
+            label: '<div><strong>Map</strong><br><small>Embed a Google Map to display a location.</small></div>',
+            content: '<div style="padding:20px;"><iframe width="100%" height="250" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=Eiffel+Tower,Paris+France" allowfullscreen></iframe></div>',
+            category: 'Media'
+          },
+          // Gallery Block
+          {
+            id: 'gallery',
+            label: '<div><strong>Gallery</strong><br><small>A responsive image gallery to showcase photos.</small></div>',
+            content: `<div class="gallery" style="display: flex; flex-wrap: wrap;">
+                        <img src="https://via.placeholder.com/150" style="margin:5px;">
+                        <img src="https://via.placeholder.com/150" style="margin:5px;">
+                        <img src="https://via.placeholder.com/150" style="margin:5px;">
+                      </div>`,
+            category: 'Media'
+          },
+          // Iframe Block
+          {
+            id: 'iframe',
+            label: '<div><strong>Iframe</strong><br><small>Embed external content using an iframe.</small></div>',
+            content: '<iframe src="https://example.com" width="100%" height="300" frameborder="0"></iframe>',
+            category: 'Advanced'
+          },
+          // Code Block
+          {
+            id: 'code',
+            label: '<div><strong>Code</strong><br><small>Display formatted code snippets.</small></div>',
+            content: '<pre style="background:#f4f4f4; padding:10px;">// Your code here</pre>',
+            category: 'Advanced'
+          },
+          // Social Icons Block
+          {
+            id: 'social',
+            label: '<div><strong>Social Icons</strong><br><small>Display social media icons linking to your profiles.</small></div>',
+            content: `<div style="display: flex; gap: 10px;">
+                        <a href="#"><img src="https://via.placeholder.com/30?text=FB" alt="Facebook"></a>
+                        <a href="#"><img src="https://via.placeholder.com/30?text=TW" alt="Twitter"></a>
+                        <a href="#"><img src="https://via.placeholder.com/30?text=IG" alt="Instagram"></a>
+                      </div>`,
+            category: 'Advanced'
+          },
+          // Pricing Table Block
+          {
+            id: 'pricing',
+            label: '<div><strong>Pricing Table</strong><br><small>A table layout to compare pricing plans and features.</small></div>',
+            content: `<table style="width:100%; border: 1px solid #ccc; border-collapse: collapse;">
+                        <tr>
+                          <th style="padding:10px; border: 1px solid #ccc;">Plan</th>
+                          <th style="padding:10px; border: 1px solid #ccc;">Price</th>
+                          <th style="padding:10px; border: 1px solid #ccc;">Features</th>
+                        </tr>
+                        <tr>
+                          <td style="padding:10px; border: 1px solid #ccc;">Basic</td>
+                          <td style="padding:10px; border: 1px solid #ccc;">$9.99</td>
+                          <td style="padding:10px; border: 1px solid #ccc;">Feature A, Feature B</td>
+                        </tr>
+                      </table>`,
+            category: 'Advanced'
+          },
+          // Accordion Block
+          {
+            id: 'accordion',
+            label: '<div><strong>Accordion</strong><br><small>A collapsible block ideal for FAQs or toggled content.</small></div>',
+            content: `<div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                              Accordion Item #1
+                            </button>
+                          </h2>
+                          <div id="collapseOne" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                              Content for accordion item #1.
+                            </div>
+                          </div>
+                        </div>
+                      </div>`,
+            category: 'Advanced'
+          },
+          // Carousel Block
+          {
+            id: 'carousel',
+            label: '<div><strong>Carousel</strong><br><small>A rotating carousel to display multiple items.</small></div>',
+            content: `<div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                          <div class="carousel-item active">
+                            <img src="https://via.placeholder.com/800x300" class="d-block w-100" alt="Slide 1">
+                          </div>
+                          <div class="carousel-item">
+                            <img src="https://via.placeholder.com/800x300" class="d-block w-100" alt="Slide 2">
+                          </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                          <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                          <span class="visually-hidden">Next</span>
+                        </button>
+                      </div>`,
+            category: 'Advanced'
+          }
+        ]
+      },
+      styleManager: {
+        sectors: [
+          { name: 'General', buildProps: ['float', 'display', 'position', 'top', 'right', 'bottom', 'left'] },
+          { name: 'Dimension', open: false, buildProps: ['width', 'height', 'max-width', 'min-height', 'margin', 'padding'] },
+          { name: 'Typography', open: false, buildProps: ['font-family', 'font-size', 'font-weight', 'color', 'line-height', 'text-align', 'text-shadow'] },
+          { name: 'Decorations', open: false, buildProps: ['background-color', 'border-radius', 'border', 'box-shadow'] },
+          { name: 'Extra', open: false, buildProps: ['opacity', 'transition'] }
+        ]
+      }
+    });
+    
+    // Register custom component: interactive-button
+    editor.DomComponents.addType('interactive-button', {
+      model: {
+        defaults: {
+          tagName: 'button',
+          draggable: true,
+          droppable: false,
+          attributes: { class: 'btn btn-primary', style: 'margin:10px;', 'data-onclick-action': '' },
+          components: 'Click me',
+          traits: [
+            {
+              type: 'text',
+              label: 'Button Text',
+              name: 'content'
+            },
+            {
+              type: 'textarea',
+              label: 'On Click Action (JS Code)',
+              name: 'data-onclick-action',
+              placeholder: 'e.g., document.getElementById("target").classList.toggle("active");'
+            }
+          ]
+        }
+      },
+      script: function() {
+        var action = this.getAttribute('data-onclick-action');
+        if(action){
+          this.addEventListener('click', function(){
+            try {
+              var fn = new Function(action);
+              fn();
+            } catch(e){
+              console.error('Interactive Button Action Error:', e);
+            }
+          });
+        }
+      },
+      isComponent: function(el) {
+        if(el.tagName == 'BUTTON' && el.getAttribute('data-onclick-action') !== null){
+          return { type: 'interactive-button' };
+        }
+      }
+    });
+    
+    // Store GrapesJS content before form submission
+    document.getElementById('pageForm').onsubmit = function() {
+      var html = editor.getHtml();
+      var css = editor.getCss();
+      var state = {
+        json: {
+          components: editor.getComponents(),
+          styles: editor.getStyle()
+        },
+        html: `<style>${css}</style>` + html
+      };
+      document.getElementById('content').value = JSON.stringify(state);
+      return true;
+    };
+  </script>
+  
+  <!-- Include Bootstrap JS for components like carousel and accordion -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
